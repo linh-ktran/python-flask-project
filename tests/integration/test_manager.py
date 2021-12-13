@@ -24,10 +24,10 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         response = requests.get(MANAGERS_URL)
-        response2 = requests.get(self._get_manager_url(manager_id))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 2)
-        self.assertEqual(response2.status_code, 200)
+        response = requests.get(self._get_manager_url(manager_id))
+        self.assertEqual(response.status_code, 200)
 
     def test_2_add_new_manager(self):
         """
@@ -35,11 +35,11 @@ class AppTest(unittest.TestCase):
         and check if the new manager is actually added
         """
         manager_id = AppTest.MANAGER_OBJ["manager_id"]
-        response1 = requests.post(MANAGERS_URL, json=AppTest.MANAGER_OBJ)
-        response2 = requests.get(self._get_manager_url(manager_id))
-        self.assertEqual(response1.status_code, 201)
-        self.assertEqual(response2.status_code, 200)
-        self.assertDictEqual(response2.json(), AppTest.MANAGER_OBJ_TEST)
+        response = requests.post(MANAGERS_URL, json=AppTest.MANAGER_OBJ)
+        self.assertEqual(response.status_code, 201)
+        response = requests.get(self._get_manager_url(manager_id))
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), AppTest.MANAGER_OBJ_TEST)
 
     def test_3_update_existing_manager(self):
         """
@@ -48,13 +48,13 @@ class AppTest(unittest.TestCase):
         to update un manager and check if the new manager is actually updated
         """
         manager_id = AppTest.MANAGER_OBJ["manager_id"]
-        response1 = requests.put(
+        response = requests.put(
             self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_OBJ
         )
-        response2 = requests.get(self._get_manager_url(manager_id))
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        self.assertDictEqual(response2.json(), AppTest.UPDATE_MANAGER_OBJ_TEST)
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_manager_url(manager_id))
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), AppTest.UPDATE_MANAGER_OBJ_TEST)
 
     def test_4_delete_manager(self):
         """
@@ -62,7 +62,7 @@ class AppTest(unittest.TestCase):
         to delete an asset and check if the asset is actually deleted
         """
         manager_id = AppTest.UPDATE_MANAGER_OBJ["manager_id"]
-        response1 = requests.delete(self._get_manager_url(manager_id))
-        response2 = requests.get(self._get_manager_url(manager_id))
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 404)
+        response = requests.delete(self._get_manager_url(manager_id))
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_manager_url(manager_id))
+        self.assertEqual(response.status_code, 404)

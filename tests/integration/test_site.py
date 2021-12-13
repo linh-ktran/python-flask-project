@@ -54,12 +54,12 @@ class AppTest(unittest.TestCase):
         GET request to /app/managers/{manager_id}/sites/{site_id} returns a specific site
         """
         manager_id, site_id = 1, 1
-        response1 = requests.get(SITES_URL)
-        response2 = requests.get(self._get_sites_url(manager_id))
-        response3 = requests.get(self._get_site_url(manager_id, site_id))
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        self.assertEqual(response3.status_code, 200)
+        response = requests.get(SITES_URL)
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_sites_url(manager_id))
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_site_url(manager_id, site_id))
+        self.assertEqual(response.status_code, 200)
 
     def test_2_add_new_site(self):
         """
@@ -68,11 +68,11 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         site_id = AppTest.SITE_OBJ["site_id"]
-        response1 = requests.post(self._get_sites_url(manager_id), json=AppTest.SITE_OBJ)
-        response2 = requests.get(self._get_site_url(manager_id, site_id))
-        self.assertEqual(response1.status_code, 201)
-        self.assertEqual(response2.status_code, 200)
-        self.assertDictEqual(response2.json(), AppTest.SITE_OBJ_TEST)
+        response = requests.post(self._get_sites_url(manager_id), json=AppTest.SITE_OBJ)
+        self.assertEqual(response.status_code, 201)
+        response = requests.get(self._get_site_url(manager_id, site_id))
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), AppTest.SITE_OBJ_TEST)
 
     def test_3_update_existing_site(self):
         """
@@ -81,13 +81,13 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         site_id = AppTest.SITE_OBJ["site_id"]
-        response1 = requests.put(
+        response = requests.put(
             self._get_site_url(manager_id, site_id), json=AppTest.UPDATE_SITE_OBJ
         )
-        response2 = requests.get(self._get_site_url(manager_id, site_id))
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-        self.assertDictEqual(response2.json(), AppTest.UPDATE_SITE_OBJ_TEST)
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_site_url(manager_id, site_id))
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), AppTest.UPDATE_SITE_OBJ_TEST)
 
     def test_4_delete_site(self):
         """
@@ -96,7 +96,7 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         site_id = AppTest.UPDATE_SITE_OBJ["site_id"]
-        response1 = requests.delete(self._get_site_url(manager_id, site_id))
-        response2 = requests.get(self._get_site_url(manager_id, site_id))
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 404)
+        response = requests.delete(self._get_site_url(manager_id, site_id))
+        self.assertEqual(response.status_code, 200)
+        response = requests.get(self._get_site_url(manager_id, site_id))
+        self.assertEqual(response.status_code, 404)
