@@ -1,0 +1,818 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with the server code
+  version: "1.0.0"
+  title: Swagger Rest Article
+consumes:
+  - application/json
+produces:
+  - application/json
+
+basePath: /app
+
+paths:
+  /managers:
+    get:
+      operationId: app.controllers.manager_controller.read_all
+      tags:
+        - Manager
+      summary: Read the entire set of managers, sorted by last name
+      description: Read the entire set of managers, sorted by last name
+      responses:
+        200:
+          description: Successfully read managers set operation
+          schema:
+            type: array
+            items:
+              properties:
+                manager_id:
+                  type: integer
+                  description: Id of the manager
+                fname:
+                  type: string
+                  description: First name of the manager
+                lname:
+                  type: string
+                  description: Last name of the manager
+                sites:
+                  type: array
+                  items:
+                    properties:
+                      manager_id:
+                        type: integer
+                        description: Id of manager this site is associated with
+                      site_id:
+                        type: integer
+                        description: Id of this site
+                      name:
+                        type: string
+                        description: name of this site
+                      address:
+                        type: string
+                        description: address of this site
+                      p_max:
+                        type: integer
+                        description: maximum electrical power of this site
+
+    post:
+      operationId: app.controllers.manager_controller.create
+      tags:
+        - Manager
+      summary: Create a manager
+      description: Create a new manager
+      parameters:
+        - name: manager
+          in: body
+          description: Manager to create
+          required: True
+          schema:
+            type: object
+            properties:
+              fname:
+                type: string
+                description: First name of manager to create
+              lname:
+                type: string
+                description: Last name of manager to create
+      responses:
+        201:
+          description: Successfully created manager
+          schema:
+            properties:
+              manager_id:
+                type: integer
+                description: Id of the manager
+              fname:
+                type: string
+                description: First name of the manager
+              lname:
+                type: string
+                description: Last name of the manager
+              sites:
+                type: array
+                description: List of the sites associsted to the manager
+
+  /managers/{manager_id}:
+    get:
+      operationId: app.controllers.manager_controller.read_one
+      tags:
+        - Manager
+      summary: Read one manager
+      description: Read one manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of the manager to get
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read manager from managers data operation
+          schema:
+            type: object
+            properties:
+              manager_id:
+                type: string
+                description: Id of the manager
+              fname:
+                type: string
+                description: First name of the manager
+              lname:
+                type: string
+                description: Last name of the manager
+              sites:
+                type: array
+                items:
+                  properties:
+                    manager_id:
+                      type: integer
+                      description: Id of manager this site is associated with
+                    site_id:
+                      type: integer
+                      description: Id of this site
+                    name:
+                      type: string
+                      description: name of this site
+                    address:
+                      type: string
+                      description: address of this site
+                    p_max:
+                      type: integer
+                      description: maximum electrical power of this site
+
+    put:
+      operationId: app.controllers.manager_controller.update
+      tags:
+        - Manager
+      summary: Update a manager
+      description: Update a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id the manager to update
+          type: integer
+          required: True
+        - name: manager
+          in: body
+          schema:
+            type: object
+            properties:
+              fname:
+                type: string
+                description: First name of the manager to update
+              lname:
+                type: string
+                description: Last name of the manager to update
+      responses:
+        200:
+          description: Successfully updated manager
+          schema:
+            properties:
+              manager_id:
+                type: string
+                description: Id of the manager
+              fname:
+                type: string
+                description: First name of the manager
+              lname:
+                type: string
+                description: Last name of the manager
+              sites:
+                type: array
+                items:
+                  properties:
+                    manager_id:
+                      type: integer
+                      description: Id of manager this site is associated with
+                    site_id:
+                      type: integer
+                      description: Id of this site
+                    name:
+                      type: string
+                      description: name of this site
+                    address:
+                      type: string
+                      description: address of this site
+                    p_max:
+                      type: integer
+                      description: maximum electrical power of this site
+
+    delete:
+      operationId: app.controllers.manager_controller.delete
+      tags:
+        - Manager
+      summary: Delete a manager from the managers list
+      description: Delete a manager
+      parameters:
+        - name: manager_id
+          in: path
+          type: integer
+          description: Id of the manager to delete
+          required: true
+      responses:
+        204:
+          description: Successfully deleted a manager
+
+  /sites:
+    get:
+      operationId: app.controllers.site_controller.read_all
+      tags:
+        - Site
+      summary: Read the entire set of sites for all managers, sorted by name
+      description: Read the entire set of sites for all managers, sorted by name
+      responses:
+        200:
+          description: Successfully read sites for all managers operation
+          schema:
+            type: array
+            items:
+              properties:
+                site_id:
+                  type: integer
+                  description: Id of the site
+                name:
+                  type: string
+                  description: name of this site
+                address:
+                  type: string
+                  description: address of this site
+                p_max:
+                  type: integer
+                  description: maximum electrical power of this site
+                manager:
+                  type: object
+                  properties:
+                    manager_id:
+                      type: integer
+                      description: Id of associated manager
+                    fname:
+                      type: string
+                      description: First name of associated manager
+                    lname:
+                      type: string
+                      description: Last name of associated manager
+                assets:
+                  type: array
+                  properties:
+                    asset_id:
+                      type: integer
+                      description: Id of the asset
+                    name:
+                      type: string
+                      description: Name of the asset
+                    type:
+                      type: string
+                      description: Type of the asset
+                    p_nominal:
+                      type: integer
+                      description: Nominal electrical power of the asset
+
+  /managers/{manager_id}/sites:
+    get:
+      operationId: app.controllers.site_controller.read_all_for_one
+      tags:
+        - Site
+      summary: Read the set of sites for one manager, sorted by name
+      description: Read the set of sites for one manager, sorted by name
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read sites for one manager operation
+          schema:
+            type: array
+            items:
+              properties:
+                site_id:
+                  type: integer
+                  description: Id of the site
+                name:
+                  type: string
+                  description: name of this site
+                address:
+                  type: string
+                  description: address of this site
+                p_max:
+                  type: integer
+                  description: maximum electrical power of this site
+                manager:
+                  type: object
+                  properties:
+                    manager_id:
+                      type: integer
+                      description: Id of associated manager
+                    fname:
+                      type: string
+                      description: First name of associated manager
+                    lname:
+                      type: string
+                      description: Last name of associated manager
+    post:
+      operationId: app.controllers.site_controller.create
+      tags:
+        - Site
+      summary: Create a site associated with a manager
+      description: Create a site associated with a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site
+          in: body
+          description: Text content of the site to create
+          required: True
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name of this site
+              address:
+                type: string
+                description: address of this site
+              p_max:
+                type: integer
+                description: maximum electrical power of this site
+
+      responses:
+        201:
+          description: Successfully created a site
+          schema:
+            type: object
+            properties:
+              site_id:
+                type: integer
+                description: Id of the site
+              name:
+                type: string
+                description: name of this site
+              address:
+                type: string
+                description: address of this site
+              p_max:
+                type: integer
+                description: maximum electrical power of this site
+              manager:
+                type: object
+                properties:
+                  manager_id:
+                    type: integer
+                    description: Id of associated manager
+                  fname:
+                    type: string
+                    description: First name of associated manager
+                  lname:
+                    type: string
+                    description: Last name of associated manager
+
+  /managers/{manager_id}/sites/{site_id}:
+    get:
+      operationId: app.controllers.site_controller.read_one
+      tags:
+        - Site
+      summary: Read a particular site associated with a manager
+      description: Read a particular site associated with a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of site
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read site for a manager
+          schema:
+            type: object
+            properties:
+              site_id:
+                type: integer
+                description: Id of the site
+              name:
+                type: string
+                description: name of this site
+              address:
+                type: string
+                description: address of this site
+              p_max:
+                type: integer
+                description: maximum electrical power of this site
+              manager:
+                type: object
+                properties:
+                  manager_id:
+                    type: integer
+                    description: Id of associated manager
+                  fname:
+                    type: string
+                    description: First name of associated manager
+                  lname:
+                    type: string
+                    description: Last name of associated manager
+
+    put:
+      operationId: app.controllers.site_controller.update
+      tags:
+        - Site
+      summary: Update a site associated with a manager
+      description: Update a site associated with a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id the manager to update
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of the site associated with a manager
+          type: integer
+          required: True
+        - name: site
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name of this site to update
+              address:
+                type: string
+                description: address of this site to update
+              p_max:
+                type: integer
+                description: maximum electrical power of this site to update
+      responses:
+        200:
+          description: Successfully updated site
+          schema:
+            properties:
+              site_id:
+                type: integer
+                description: Id of the site
+              name:
+                type: string
+                description: name of this site
+              address:
+                type: string
+                description: address of this site
+              p_max:
+                type: integer
+                description: maximum electrical power of this site
+              manager:
+                type: object
+                properties:
+                  manager_id:
+                    type: integer
+                    description: Id of associated manager
+                  fname:
+                    type: string
+                    description: First name of associated manager
+                  lname:
+                    type: string
+                    description: Last name of associated manager
+
+    delete:
+      operationId: app.controllers.site_controller.delete
+      tags:
+        - Site
+      summary: Delete a site associated with a manager
+      description: Delete a site associated with a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of site
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully deleted a site
+
+  /assets:
+    get:
+      operationId: app.controllers.asset_controller.read_all
+      tags:
+        - Asset
+      summary: Read the entire set of sites for all sites, sorted by name
+      description: Read the entire set of sites for all sites, sorted by name
+      responses:
+        200:
+          description: Successfully read sites for all sites operation
+          schema:
+            type: array
+            items:
+              properties:
+                asset_id:
+                  type: integer
+                  description: Id of the asset
+                name:
+                  type: string
+                  description: name of this asset
+                type:
+                  type: string
+                  description: type of this asset
+                p_nominal:
+                  type: integer
+                  description: monimal electrical power of this site
+                site:
+                  type: object
+                  properties:
+                    site_id:
+                      type: integer
+                      description: Id of associated site
+                    name:
+                      type: string
+                      description: Name of associated site
+                    address:
+                      type: string
+                      description: Address of associated site
+                    p_max:
+                      type: integer
+                      description: Electrical power of associated site
+
+  /managers/{manager_id}/sites/{site_id}/assets:
+    get:
+      operationId: app.controllers.asset_controller.read_all_for_one
+      tags:
+        - Asset
+      summary: Read the set of assets for one site, sorted by name
+      description: Read the set of assets for one site, sorted by name
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of associated manager
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of associated site
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read assets for one site operation
+          schema:
+            type: array
+            items:
+              properties:
+                asset_id:
+                  type: integer
+                  description: Id of the asset
+                name:
+                  type: string
+                  description: Name of the asset
+                type:
+                  type: string
+                  description: Type of the asset
+                p_nominal:
+                  type: integer
+                  description: Nominal electrical power of the asset
+                site:
+                  type: object
+                  properties:
+                    site_id:
+                      type: integer
+                      description: Id of associated site
+                    name:
+                      type: string
+                      description: Name of associated site
+                    address:
+                      type: string
+                      description: Address of associated site
+                    p_max:
+                      type: integer
+                      description: Maximum electric power of associated site
+
+    post:
+      operationId: app.controllers.asset_controller.create
+      tags:
+        - Asset
+      summary: Create an asset associated with a site
+      description: Create an asset associated with a site
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of associated manager
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of associated site
+          type: integer
+          required: True
+        - name: asset
+          in: body
+          description: Text content of the asset to create
+          required: True
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the asset
+              type:
+                type: string
+                description: Type of the asset
+              p_nominal:
+                type: integer
+                description: Nominal electrical power of the asset
+
+      responses:
+        201:
+          description: Successfully created an asset
+          schema:
+            type: object
+            properties:
+              asset_id:
+                type: integer
+                description: Id of the asset
+              name:
+                type: string
+                description: Name of the asset
+              type:
+                type: string
+                description: Type of the asset
+              p_nominal:
+                type: integer
+                description: Nominal electrical power of the asset
+              site:
+                type: object
+                properties:
+                  site_id:
+                    type: integer
+                    description: Id of associated site
+                  name:
+                    type: string
+                    description: Name of associated site
+                  address:
+                    type: string
+                    description: Address of associated site
+                  p_max:
+                    type: string
+                    description: Maximum electrical power of associated site
+
+  /managers/{manager_id}/sites/{site_id}/assets/{asset_id}:
+    get:
+      operationId: app.controllers.asset_controller.read_one
+      tags:
+        - Asset
+      summary: Read a particular asset associated with a site
+      description: Read a particular asset associated with a site
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of site associated with asset
+          type: integer
+          required: True
+        - name: asset_id
+          in: path
+          description: Id of asset
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read asset for a site
+          schema:
+            type: object
+            properties:
+              asset_id:
+                type: integer
+                description: Id of the asset
+              name:
+                type: string
+                description: Name of the asset
+              type:
+                type: string
+                description: Type of the asset
+              p_nomial:
+                type: integer
+                description: Nominal electrical power of the asset
+              site:
+                type: object
+                properties:
+                  site_id:
+                    type: integer
+                    description: Id of associated site
+                  name:
+                    type: string
+                    description: Name of associated site
+                  address:
+                    type: string
+                    description: Address of associated site
+                  p_max:
+                    type: integer
+                    description: Maximum electrical power of associated site
+
+    put:
+      operationId: app.controllers.asset_controller.update
+      tags:
+        - Asset
+      summary: Update an asset associated with a manager
+      description: Update an asset associated with a manager
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of site associated with asset
+          type: integer
+          required: True
+        - name: asset_id
+          in: path
+          description: Id of asset
+          type: integer
+          required: True
+        - name: asset
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the asset to update
+              type:
+                type: string
+                description: Type of the asset to update
+              p_nomial:
+                type: integer
+                description: Nominal electrical power of the asset to update
+      responses:
+        200:
+          description: Successfully updated asset
+          schema:
+            properties:
+              asset_id:
+                type: integer
+                description: Id of the asset
+              name:
+                type: string
+                description: Name of the asset
+              type:
+                type: string
+                description: Type of the asset
+              p_nomial:
+                type: integer
+                description: Nominal electrical power of the asset
+              site:
+                type: object
+                properties:
+                  site_id:
+                    type: integer
+                    description: Id of associated site
+                  name:
+                    type: string
+                    description: Name of associated site
+                  address:
+                    type: string
+                    description: Address of associated site
+                  p_max:
+                    type: integer
+                    description: Maximum electrical power of associated asset
+
+    delete:
+      operationId: app.controllers.asset_controller.delete
+      tags:
+        - Asset
+      summary: Delete an asset associated with a site
+      description: Delete an asset associated with a site
+      parameters:
+        - name: manager_id
+          in: path
+          description: Id of manager associated with site
+          type: integer
+          required: True
+        - name: site_id
+          in: path
+          description: Id of site associated with asset
+          type: integer
+          required: True
+        - name: asset_id
+          in: path
+          description: Id of asset
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully deleted an asset
