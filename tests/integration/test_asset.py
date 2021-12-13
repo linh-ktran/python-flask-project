@@ -108,6 +108,18 @@ class AppTest(unittest.TestCase):
         self.assertEqual(response2.status_code, 200)
         self.assertDictEqual(response2.json(), AppTest.UPDATE_ASSET_OBJ_TEST)
 
+        # Update with bad info
+        response01 = requests.put(
+            self._get_asset_url(manager_id=manager_id, site_id=site_id, asset_id=asset_id),
+            json=AppTest.ASSET_OBJ_BAD1,
+        )
+        response02 = requests.put(
+            self._get_asset_url(manager_id=manager_id, site_id=site_id, asset_id=asset_id),
+            json=AppTest.ASSET_OBJ_BAD2,
+        )
+        self.assertEqual(response01.status_code, 403)
+        self.assertEqual(response02.status_code, 403)
+
     def test_4_delete_asset(self):
         """
         DELETE request to /app/managers/{manager_id}/sites/{site_id}/assets/{asset_id}
