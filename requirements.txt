@@ -2,7 +2,7 @@ flask==1.1.2
 flask-marshmallow==0.14.0
 flask-sqlalchemy==2.5.0
 marshmallow-sqlalchemy==0.24.1
-"connexion[swagger-ui]"
+connexion[swagger-ui]
 connexion==2.9.0
 aniso8601==8.0.0
 click==7.1.2

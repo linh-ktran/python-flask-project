@@ -36,24 +36,12 @@ paths:
                   description: Last name of the manager
                 sites:
                   type: array
+                  description: List of the sites associsted to the manager
                   items:
                     properties:
-                      manager_id:
-                        type: integer
-                        description: Id of manager this site is associated with
                       site_id:
                         type: integer
                         description: Id of this site
-                      name:
-                        type: string
-                        description: name of this site
-                      address:
-                        type: string
-                        description: address of this site
-                      p_max:
-                        type: integer
-                        description: maximum electrical power of this site
-
     post:
       operationId: app.controllers.manager_controller.create
       tags:
@@ -91,6 +79,11 @@ paths:
               sites:
                 type: array
                 description: List of the sites associsted to the manager
+                items:
+                  properties:
+                    site_id:
+                      type: integer
+                      description: Id of this site
 
   /managers/{manager_id}:
     get:
@@ -122,24 +115,12 @@ paths:
                 description: Last name of the manager
               sites:
                 type: array
+                description: List of the sites associsted to the manager
                 items:
                   properties:
-                    manager_id:
-                      type: integer
-                      description: Id of manager this site is associated with
                     site_id:
                       type: integer
                       description: Id of this site
-                    name:
-                      type: string
-                      description: name of this site
-                    address:
-                      type: string
-                      description: address of this site
-                    p_max:
-                      type: integer
-                      description: maximum electrical power of this site
-
     put:
       operationId: app.controllers.manager_controller.update
       tags:
@@ -179,24 +160,12 @@ paths:
                 description: Last name of the manager
               sites:
                 type: array
+                description: List of the sites associsted to the manager
                 items:
                   properties:
-                    manager_id:
-                      type: integer
-                      description: Id of manager this site is associated with
                     site_id:
                       type: integer
                       description: Id of this site
-                    name:
-                      type: string
-                      description: name of this site
-                    address:
-                      type: string
-                      description: address of this site
-                    p_max:
-                      type: integer
-                      description: maximum electrical power of this site
-
     delete:
       operationId: app.controllers.manager_controller.delete
       tags:
@@ -241,31 +210,18 @@ paths:
                   description: maximum electrical power of this site
                 manager:
                   type: object
+                  description: Manager associsted to the site
                   properties:
                     manager_id:
                       type: integer
                       description: Id of associated manager
-                    fname:
-                      type: string
-                      description: First name of associated manager
-                    lname:
-                      type: string
-                      description: Last name of associated manager
                 assets:
                   type: array
+                  description: List of assets associsted to the site
                   properties:
                     asset_id:
                       type: integer
                       description: Id of the asset
-                    name:
-                      type: string
-                      description: Name of the asset
-                    type:
-                      type: string
-                      description: Type of the asset
-                    p_nominal:
-                      type: integer
-                      description: Nominal electrical power of the asset
 
   /managers/{manager_id}/sites:
     get:
@@ -301,16 +257,19 @@ paths:
                   description: maximum electrical power of this site
                 manager:
                   type: object
+                  description: Manager associsted to the site
                   properties:
                     manager_id:
                       type: integer
                       description: Id of associated manager
-                    fname:
-                      type: string
-                      description: First name of associated manager
-                    lname:
-                      type: string
-                      description: Last name of associated manager
+                assets:
+                  type: array
+                  description: List of assets associsted to the site
+                  properties:
+                    asset_id:
+                      type: integer
+                      description: Id of the asset
+
     post:
       operationId: app.controllers.site_controller.create
       tags:
@@ -339,7 +298,6 @@ paths:
               p_max:
                 type: integer
                 description: maximum electrical power of this site
-
       responses:
         201:
           description: Successfully created a site
@@ -360,16 +318,18 @@ paths:
                 description: maximum electrical power of this site
               manager:
                 type: object
+                description: Manager associsted to the site
                 properties:
                   manager_id:
                     type: integer
                     description: Id of associated manager
-                  fname:
-                    type: string
-                    description: First name of associated manager
-                  lname:
-                    type: string
-                    description: Last name of associated manager
+              assets:
+                type: array
+                description: List of assets associsted to the site
+                properties:
+                  asset_id:
+                    type: integer
+                    description: Id of the asset
 
   /managers/{manager_id}/sites/{site_id}:
     get:
@@ -409,16 +369,18 @@ paths:
                 description: maximum electrical power of this site
               manager:
                 type: object
+                description: Manager associsted to the site
                 properties:
                   manager_id:
                     type: integer
                     description: Id of associated manager
-                  fname:
-                    type: string
-                    description: First name of associated manager
-                  lname:
-                    type: string
-                    description: Last name of associated manager
+              assets:
+                type: array
+                description: List of assets associsted to the site
+                properties:
+                  asset_id:
+                    type: integer
+                    description: Id of the asset
 
     put:
       operationId: app.controllers.site_controller.update
@@ -470,16 +432,18 @@ paths:
                 description: maximum electrical power of this site
               manager:
                 type: object
+                description: Manager associsted to the site
                 properties:
                   manager_id:
                     type: integer
                     description: Id of associated manager
-                  fname:
-                    type: string
-                    description: First name of associated manager
-                  lname:
-                    type: string
-                    description: Last name of associated manager
+              assets:
+                type: array
+                description: List of assets associsted to the site
+                properties:
+                  asset_id:
+                    type: integer
+                    description: Id of the asset
 
     delete:
       operationId: app.controllers.site_controller.delete
@@ -530,19 +494,11 @@ paths:
                   description: monimal electrical power of this site
                 site:
                   type: object
+                  description: Site associsted to the asset
                   properties:
                     site_id:
                       type: integer
                       description: Id of associated site
-                    name:
-                      type: string
-                      description: Name of associated site
-                    address:
-                      type: string
-                      description: Address of associated site
-                    p_max:
-                      type: integer
-                      description: Electrical power of associated site
 
   /managers/{manager_id}/sites/{site_id}/assets:
     get:
@@ -583,19 +539,11 @@ paths:
                   description: Nominal electrical power of the asset
                 site:
                   type: object
+                  description: Site associsted to the asset
                   properties:
                     site_id:
                       type: integer
                       description: Id of associated site
-                    name:
-                      type: string
-                      description: Name of associated site
-                    address:
-                      type: string
-                      description: Address of associated site
-                    p_max:
-                      type: integer
-                      description: Maximum electric power of associated site
 
     post:
       operationId: app.controllers.asset_controller.create
@@ -651,19 +599,11 @@ paths:
                 description: Nominal electrical power of the asset
               site:
                 type: object
+                description: Site associsted to the asset
                 properties:
                   site_id:
                     type: integer
                     description: Id of associated site
-                  name:
-                    type: string
-                    description: Name of associated site
-                  address:
-                    type: string
-                    description: Address of associated site
-                  p_max:
-                    type: string
-                    description: Maximum electrical power of associated site
 
   /managers/{manager_id}/sites/{site_id}/assets/{asset_id}:
     get:
@@ -708,19 +648,11 @@ paths:
                 description: Nominal electrical power of the asset
               site:
                 type: object
+                description: Site associsted to the asset
                 properties:
                   site_id:
                     type: integer
                     description: Id of associated site
-                  name:
-                    type: string
-                    description: Name of associated site
-                  address:
-                    type: string
-                    description: Address of associated site
-                  p_max:
-                    type: integer
-                    description: Maximum electrical power of associated site
 
     put:
       operationId: app.controllers.asset_controller.update
@@ -777,19 +709,11 @@ paths:
                 description: Nominal electrical power of the asset
               site:
                 type: object
+                description: Site associsted to the asset
                 properties:
                   site_id:
                     type: integer
                     description: Id of associated site
-                  name:
-                    type: string
-                    description: Name of associated site
-                  address:
-                    type: string
-                    description: Address of associated site
-                  p_max:
-                    type: integer
-                    description: Maximum electrical power of associated asset
 
     delete:
       operationId: app.controllers.asset_controller.delete

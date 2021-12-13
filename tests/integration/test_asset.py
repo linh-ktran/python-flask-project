@@ -17,7 +17,7 @@ class AppTest(unittest.TestCase):
         "name": "C3",
         "type": "CHILLER",
         "p_nominal": 2000,
-        "site": {"address": "20 rue de Paris", "name": "Orsay", "p_max": 18000, "site_id": 1},
+        "site": {"site_id": 1},
     }
 
     UPDATE_ASSET_OBJ = {
@@ -31,7 +31,7 @@ class AppTest(unittest.TestCase):
         "name": "C3",
         "type": "COMPRESSOR",
         "p_nominal": 2500,
-        "site": {"address": "20 rue de Paris", "name": "Orsay", "p_max": 18000, "site_id": 1},
+        "site": {"site_id": 1},
     }
 
     def _get_assets_url(self, manager_id: int, site_id: int) -> str:
@@ -128,12 +128,17 @@ class AppTest(unittest.TestCase):
         """
         manager_id, site_id = 1, 1
         asset_id = AppTest.UPDATE_ASSET_OBJ["asset_id"]
+        bad_asset_id = 10
         response = requests.delete(
             self._get_asset_url(manager_id=manager_id, site_id=site_id, asset_id=asset_id)
         )
         self.assertEqual(response.status_code, 200)
         response = requests.get(
             self._get_asset_url(manager_id=manager_id, site_id=site_id, asset_id=asset_id)
+        )
+        self.assertEqual(response.status_code, 404)
+        response = requests.delete(
+            self._get_asset_url(manager_id=manager_id, site_id=site_id, asset_id=bad_asset_id)
         )
         self.assertEqual(response.status_code, 404)
 

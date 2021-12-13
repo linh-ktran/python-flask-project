@@ -26,7 +26,7 @@ class AppTest(unittest.TestCase):
         response = requests.get(MANAGERS_URL)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 2)
-        response = requests.get(self._get_manager_url(manager_id))
+        response = requests.get(self._get_manager_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)
 
     def test_2_add_new_manager(self):
@@ -37,7 +37,7 @@ class AppTest(unittest.TestCase):
         manager_id = AppTest.MANAGER_OBJ["manager_id"]
         response = requests.post(MANAGERS_URL, json=AppTest.MANAGER_OBJ)
         self.assertEqual(response.status_code, 201)
-        response = requests.get(self._get_manager_url(manager_id))
+        response = requests.get(self._get_manager_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.MANAGER_OBJ_TEST)
 
@@ -52,7 +52,7 @@ class AppTest(unittest.TestCase):
             self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_OBJ
         )
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_manager_url(manager_id))
+        response = requests.get(self._get_manager_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.UPDATE_MANAGER_OBJ_TEST)
 
@@ -62,7 +62,10 @@ class AppTest(unittest.TestCase):
         to delete an asset and check if the asset is actually deleted
         """
         manager_id = AppTest.UPDATE_MANAGER_OBJ["manager_id"]
-        response = requests.delete(self._get_manager_url(manager_id))
+        bad_manager_id = AppTest.UPDATE_MANAGER_OBJ["manager_id"]
+        response = requests.delete(self._get_manager_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_manager_url(manager_id))
+        response = requests.get(self._get_manager_url(manager_id=manager_id))
+        self.assertEqual(response.status_code, 404)
+        response = requests.delete(self._get_manager_url(manager_id=bad_manager_id))
         self.assertEqual(response.status_code, 404)

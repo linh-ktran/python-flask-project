@@ -21,7 +21,7 @@ class AppTest(unittest.TestCase):
         "address": "30 ABC street",
         "p_max": 20000,
         "assets": [],
-        "manager": {"fname": "Nicolas", "lname": "Plain", "manager_id": 1},
+        "manager": {"manager_id": 1},
     }
 
     UPDATE_SITE_OBJ = {
@@ -36,7 +36,7 @@ class AppTest(unittest.TestCase):
         "address": "30 Carlos street",
         "p_max": 20000,
         "assets": [],
-        "manager": {"fname": "Nicolas", "lname": "Plain", "manager_id": 1},
+        "manager": {"manager_id": 1},
     }
 
     def _get_sites_url(self, manager_id: int) -> str:
@@ -56,9 +56,9 @@ class AppTest(unittest.TestCase):
         manager_id, site_id = 1, 1
         response = requests.get(SITES_URL)
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_sites_url(manager_id))
+        response = requests.get(self._get_sites_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_site_url(manager_id, site_id))
+        response = requests.get(self._get_site_url(manager_id=manager_id, site_id=site_id))
         self.assertEqual(response.status_code, 200)
 
     def test_2_add_new_site(self):
@@ -68,9 +68,9 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         site_id = AppTest.SITE_OBJ["site_id"]
-        response = requests.post(self._get_sites_url(manager_id), json=AppTest.SITE_OBJ)
+        response = requests.post(self._get_sites_url(manager_id=manager_id), json=AppTest.SITE_OBJ)
         self.assertEqual(response.status_code, 201)
-        response = requests.get(self._get_site_url(manager_id, site_id))
+        response = requests.get(self._get_site_url(manager_id=manager_id, site_id=site_id))
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.SITE_OBJ_TEST)
 
@@ -85,7 +85,7 @@ class AppTest(unittest.TestCase):
             self._get_site_url(manager_id, site_id), json=AppTest.UPDATE_SITE_OBJ
         )
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_site_url(manager_id, site_id))
+        response = requests.get(self._get_site_url(manager_id=manager_id, site_id=site_id))
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.UPDATE_SITE_OBJ_TEST)
 
@@ -96,7 +96,11 @@ class AppTest(unittest.TestCase):
         """
         manager_id = 1
         site_id = AppTest.UPDATE_SITE_OBJ["site_id"]
-        response = requests.delete(self._get_site_url(manager_id, site_id))
+        bad_asset_id = 10
+        response = requests.delete(self._get_site_url(manager_id=manager_id, site_id=site_id))
         self.assertEqual(response.status_code, 200)
-        response = requests.get(self._get_site_url(manager_id, site_id))
+        response = requests.get(self._get_site_url(manager_id=manager_id, site_id=site_id))
         self.assertEqual(response.status_code, 404)
+        response = requests.delete(self._get_site_url(manager_id=manager_id, site_id=bad_asset_id))
+        self.assertEqual(response.status_code, 404)
+

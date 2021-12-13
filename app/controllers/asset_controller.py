@@ -156,7 +156,7 @@ def update(manager_id: int, site_id: int, asset_id: int, asset: dict) -> tuple:
     schema = AssetSchema()
     update = schema.load(asset, session=db.session)
 
-    # Check the conditions for the asset tp update
+    # Check the conditions for the asset to update
     if update.type is not None and update.type not in ASSET_TYPE:
         abort(
             403,
