@@ -103,4 +103,3 @@ class AppTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         response = requests.delete(self._get_site_url(manager_id=manager_id, site_id=bad_asset_id))
         self.assertEqual(response.status_code, 404)
-

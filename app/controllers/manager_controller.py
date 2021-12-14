@@ -1,5 +1,5 @@
 """This is the manager module and supports all the ReST actions for the manager data"""
-from typing import Any
+from typing import  List, Union
 
 from flask import Response, abort, make_response
 
@@ -8,7 +8,7 @@ from app.models.schemas import ManagerSchema
 from config import db
 
 
-def read_all() -> Any:
+def read_all() -> Union[dict, List[dict]]:
     """This function responds to a request for /api/managers
     with the lists of all managers
 
@@ -20,7 +20,7 @@ def read_all() -> Any:
     return data
 
 
-def read_one(manager_id: int) -> Any:
+def read_one(manager_id: int) -> Union[dict, List[dict]]:
     """This function responds to a request for /api/managers/{manager_id}
     with one matching manager from managers
 

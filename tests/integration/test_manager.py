@@ -48,9 +48,7 @@ class AppTest(unittest.TestCase):
         to update un manager and check if the new manager is actually updated
         """
         manager_id = AppTest.MANAGER_OBJ["manager_id"]
-        response = requests.put(
-            self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_OBJ
-        )
+        response = requests.put(self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_OBJ)
         self.assertEqual(response.status_code, 200)
         response = requests.get(self._get_manager_url(manager_id=manager_id))
         self.assertEqual(response.status_code, 200)

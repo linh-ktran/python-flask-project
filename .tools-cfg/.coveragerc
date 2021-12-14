@@ -1,0 +1,15 @@
+[run]
+branch = true
+
+[report]
+skip_covered = False
+show_missing = True
+exclude_lines =
+	\#\s*pragma: no cover
+	^if __name__ == ["]__main__["]:$
+
+[paths]
+source =
+	seqoia/
+	*/lib/*/site-packages/seqoia
+	.tox/*/lib/*/site-packages/seqoia

@@ -1,6 +1,6 @@
 """This is the sites module and supports all the REST actions
 for the site data"""
-from typing import Any
+from typing import  List, Union
 
 from flask import Response, abort, make_response
 
@@ -9,7 +9,7 @@ from app.models.schemas import SiteSchema
 from config import db
 
 
-def read_all() -> Any:
+def read_all() -> Union[dict, List[dict]]:
     """This function responds to a request for /app/sites
     with the complete list of sites, sorted by site name
 
@@ -21,7 +21,7 @@ def read_all() -> Any:
     return data
 
 
-def read_all_for_one(manager_id: int) -> Any:
+def read_all_for_one(manager_id: int) -> Union[dict, List[dict]]:
     """This function responds to a request for /app/managers/{manager_id}/sites
     with the list of sites associated with a manager only.
 
@@ -40,7 +40,7 @@ def read_all_for_one(manager_id: int) -> Any:
     return data
 
 
-def read_one(manager_id: int, site_id: int) -> Any:
+def read_one(manager_id: int, site_id: int) -> Union[dict, List[dict]]:
     """This function responds to a request for
     /app/managers/{manager_id}/sites/{site_id}
     with one matching site for the associated manager

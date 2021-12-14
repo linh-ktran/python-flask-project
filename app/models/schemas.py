@@ -23,9 +23,9 @@ class ManagerSiteSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     site_id = fields.Int()
-    #name = fields.Str()
-    #address = fields.Str()
-    #p_max = fields.Int()
+    # name = fields.Str()
+    # address = fields.Str()
+    # p_max = fields.Int()
 
 
 class SiteSchema(ma.SQLAlchemyAutoSchema):
@@ -48,8 +48,8 @@ class SiteManagerSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     manager_id = fields.Int()
-    #lname = fields.Str()
-    #fname = fields.Str()
+    # lname = fields.Str()
+    # fname = fields.Str()
 
 
 class SiteAssetSchema(ma.SQLAlchemyAutoSchema):
@@ -59,9 +59,9 @@ class SiteAssetSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     asset_id = fields.Int()
-    #name = fields.Str()
-    #type = fields.Str()
-    #p_nominal = fields.Int()
+    # name = fields.Str()
+    # type = fields.Str()
+    # p_nominal = fields.Int()
 
 
 class AssetSchema(ma.SQLAlchemyAutoSchema):
@@ -83,6 +83,6 @@ class AssetSiteSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     site_id = fields.Int()
-    #name = fields.Str()
-    #address = fields.Str()
-    #p_max = fields.Int()
+    # name = fields.Str()
+    # address = fields.Str()
+    # p_max = fields.Int()

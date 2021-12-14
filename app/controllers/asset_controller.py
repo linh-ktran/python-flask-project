@@ -1,5 +1,5 @@
 """This is the asset module and supports all the REST actions for the asset data"""
-from typing import Any
+from typing import  List, Union
 
 from flask import Response, abort, make_response
 
@@ -8,7 +8,7 @@ from app.models.schemas import AssetSchema
 from config import db
 
 
-def read_all() -> Any:
+def read_all() -> Union[dict, List[dict]]:
     """This function responds to a request for /app/assets
     with the complete list of assets, sorted by asset name
 
@@ -20,7 +20,7 @@ def read_all() -> Any:
     return data
 
 
-def read_all_for_one(manager_id: int, site_id: int) -> Any:
+def read_all_for_one(manager_id: int, site_id: int) -> Union[dict, List[dict]]:
     """This function responds to a request for
     /app/managers/{manager_id}/sites/sites/{site_id}/assets
     with the list of all assets for one site only.
@@ -43,7 +43,7 @@ def read_all_for_one(manager_id: int, site_id: int) -> Any:
     return data
 
 
-def read_one(manager_id: int, site_id: int, asset_id: int) -> Any:
+def read_one(manager_id: int, site_id: int, asset_id: int) -> Union[dict, List[dict]]:
     """This function responds to a request for
     /app/managers/{manager_id}/sites/{site_id}/assets/{asset_id}
     with one matching asset for the associated site and manager
