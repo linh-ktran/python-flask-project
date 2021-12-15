@@ -1,11 +1,11 @@
 """This is the sites module and supports all the REST actions
 for the site data"""
-from typing import  List, Union
+from typing import List, Union
 
 from flask import Response, abort, make_response
 
 from app.models.models import Manager, Site
-from app.models.schemas import SiteSchema, ManagerSchema
+from app.models.schemas import ManagerSchema, SiteSchema
 from config import db
 
 
@@ -35,9 +35,9 @@ def create(site: dict) -> tuple:
         new_site = schema.load(data=site, session=db.session)
         if managers is not None:
             for manager in managers:
-                associated_manager = (
-                    Manager.query.filter(Manager.manager_id == manager['manager_id']).one_or_none()
-                )
+                associated_manager = Manager.query.filter(
+                    Manager.manager_id == manager['manager_id']
+                ).one_or_none()
                 if associated_manager is None:
                     abort(404, f"Manager not found for Id: {manager['manager_id']}.")
 
@@ -59,7 +59,7 @@ def read_one(site_id: int) -> Union[dict, List[dict]]:
 
     :return:                 json string of site contents, 404 if not found
     """
-    site = (Site.query.filter(Site.site_id == site_id).one_or_none())
+    site = Site.query.filter(Site.site_id == site_id).one_or_none()
     if site is None:
         abort(404, f"Site not found for Id: {site_id}.")
 
@@ -77,7 +77,7 @@ def update(site_id: int, site: dict) -> tuple:
 
     :return:                 200 on success, 404 if not found, 403 forbidden
     """
-    site_to_update = (Site.query.filter(Site.site_id == site_id).one_or_none())
+    site_to_update = Site.query.filter(Site.site_id == site_id).one_or_none()
     if site_to_update is None:
         abort(404, f"Site not found for Id: {site_id}.")
 
@@ -109,9 +109,7 @@ def delete(site_id: int) -> Response:
 
     :return:             200 on successful delete, 404 if not found
     """
-    site = (
-        Site.query.filter(Site.site_id == site_id).one_or_none()
-    )
+    site = Site.query.filter(Site.site_id == site_id).one_or_none()
     if site is None:
         abort(404, f"Site not found for Id: {site_id}")
 

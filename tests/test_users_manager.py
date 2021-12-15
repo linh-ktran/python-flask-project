@@ -9,12 +9,16 @@ MANAGERS_URL = "{}/managers".format(BASE_URL)
 class AppTest(unittest.TestCase):
 
     FIRST_MANAGER = {
-        "manager_id": 1, "fname": "Nicolas", "lname": "Plain",
-        "sites": [{"site_id": 1}, {"site_id": 2}]
+        "manager_id": 1,
+        "fname": "Nicolas",
+        "lname": "Plain",
+        "sites": [{"site_id": 1}, {"site_id": 2}],
     }
     NEW_MANAGER = {
-        "manager_id": 7, "fname": "Luca", "lname": "Rava",
-        "sites": [{"site_id": 1}, {"site_id": 2}]
+        "manager_id": 7,
+        "fname": "Luca",
+        "lname": "Rava",
+        "sites": [{"site_id": 1}, {"site_id": 2}],
     }
     BAD_MANAGER = {"fname": "Luca", "lname": "Rava", "sites": [{"site_id": 12}]}
 
@@ -63,11 +67,13 @@ class AppTest(unittest.TestCase):
 
     def test_update_an_existing_manager(self):
         """
-        PUT request to /app/managers/manager_id to update a manager
+        PATCH request to /app/managers/manager_id to update a manager
         """
         manager_id = AppTest.UPDATE_MANAGER["manager_id"]
         requests.post(MANAGERS_URL, json=AppTest.MANAGER)
-        response = requests.put(self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER)
+        response = requests.patch(
+            self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_CHECK
+        )
         self.assertEqual(response.status_code, 200)
 
         # Check if the new manager is actually updated

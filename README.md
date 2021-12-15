@@ -59,7 +59,7 @@ test-python-flask
 ├── Pipfile.lock
 
 ```
-GET STARTED
+##GET STARTED
 
 ```commandline
 $ sudo pip install pipenv
@@ -71,133 +71,201 @@ $ pipenv install --dev
 $ pipenv shell
 ```
 
-Create the initial database
+###Create the initial database
 ```commandline
 $ python build_database.py
 ```
 
 
-**To test the api**
+### To test the api
 ```commandline
 $ tox
 ou
 $ pytest
 ```
 
-**To test the api manually:**
+### To test the api manually
 
-*The energy manager:*
-```commandline
-# Read all managers
+### 1. Energy manager
+
+* GET to read all the managers
+```python
 curl -X GET  http://localhost:5000/app/managers
+```
 
-# Read a managers
+* GET to read a managers
+```python
 curl -X GET "localhost:5000/app/manager/1"
 
-# Add a new manager
+# Returns: 
+#{"manager_id": 1, "fname": "Nicolas", "lname": "Plain", "sites": [{"site_id": 1}, {"site_id": 2}]}}
+```
+
+* POST to add a new manager 
+```python
 curl -X POST -H "Content-Type: application/json" -d '{
 	"fname": "Luca",
 	"lname": "Rava"
 }' http://localhost:5000/app/managers
 
-# Add a new manager and link it to one or some sites
+# Returns: 
+# {"fname": "Luca", "lname": "Rava", "manager_id": 4, "sites": []}
+```
+
+* POST to a new manager and link it to one or some existing sites
+```python
 curl -X POST -H "Content-Type: application/json" -d '{
 	"fname": "Ruby",
 	"lname": "Green",
 	"sites": [{"site_id": 1}, {"site_id": 2}]
 }' http://localhost:5000/app/managers
+```
 
-
-# Update a manager
-curl -X PUT -H "Content-Type: application/json" -d '{
+* PATCH to update a manager
+```python
+curl -X PATCH -H "Content-Type: application/json" -d '{
 	"fname": "Lucas"
 }' http://localhost:5000/app/manager/3
+```
 
-### Update a manager and the list of associated sites
-curl -X PUT -H "Content-Type: application/json" -d '{
-	"sites": [{"site_id": 2}]
-}' http://localhost:5000/app/manager/3
-
-
-# Delete a manager
+* DELETE to delete a manager
+```python
 curl -iX DELETE "localhost:5000/app/manager/3"
 ```
 
+#### Invalid actions
+* POST to create a manager with invalid site_id
+```python
+curl -X POST -H "Content-Type: application/json" -d '{
+	"fname": "Ruby",
+	"lname": "Green",
+	"sites": [{"site_id": 1}, {"site_id": 10}]
+}' http://localhost:5000/app/managers
 
-*The industrial site:*
-```commandline
-# Read all sites and their assets
+# Returns: Site not found for Id: 10
+```
+
+
+### 2. Industrial site
+
+* GET to read all sites and their assets
+```python
 curl -X GET "localhost:5000/app/sites"
+```
 
-# Read a site and its assets
-curl -X GET "localhost:5000/app/site/2"
+* GET to read a specific site and its assets
+```python
+curl -X GET "localhost:5000/app/site/1"
 
-# Add a new site
+# Returns:
+# { "site_id": 1, "name": "Orsay", "address": "20 rue de Paris", "p_max": 18000,
+#  "assets": [
+#    {"asset_id": 2, "name": "C2", "p_nominal": 3000, "type": "COMPRESSOR"},
+#    {"asset_id": 1, "name": "C1", "p_nominal": 2000, "type": "COMPRESSOR"}
+#  ]}
+```
+
+* POST to add a new site
+```python
 curl -X POST -H "Content-Type: application/json" -d '{
 	"name": "Newsite",
 	"address": "30 ABC street",
-    "p_max": 7000
+	"p_max": 7000
 }' localhost:5000/app/sites
+```
 
-# Add a new site with associated existing managers
+* POST to add a new site with associated existing managers
+```python
 curl -X POST -H "Content-Type: application/json" -d '{
-    "name": "Newsite",
+	"name": "Newsite",
 	"address": "30 ABC street",
-    "p_max": 7000,
-    "managers": [{"manager_id": 1}, {"manager_id": 2}]
+	"p_max": 7000,
+	"managers": [{"manager_id": 1}, {"manager_id": 2}]
 }' localhost:5000/app/sites
+```
 
-#Update a site
-curl -X PUT -H "Content-Type: application/json" -d '{
+* PATCH to update a site
+```python
+curl -X PATCH -H "Content-Type: application/json" -d '{
 	"p_max": 9000,
 }' localhost:5000/app/site/2
+```
 
-# Delete a site
+* DELETE to delete a site
+```python
 curl -X DELETE "localhost:5000/app/site/1"
 ```
 
-Invalid actions
+#### Invalid actions
+* PATCH to update a site with p_max too small comparing to the assets
 ```commandline
-#Update a site - pmax too small
-curl -X PUT -H "Content-Type: application/json" -d '{
-	"p_max": 2000, 
+curl -X PATCH -H "Content-Type: application/json" -d '{
+	"p_max": 2000
 }' localhost:5000/app/site/2
+
+# Returns: 
+# For the site with ID 2, the sum of the nominal electrical powers of the assets 7000 
+# exceeds the new maximum electrical power of the site 2000.
 ```
 
-
-*The asset:*
-```commandline
-# Create an asset of a site
+###  3. Asset
+* POST to create an asset of a site
+```python
 curl -X POST -H "Content-Type: application/json" -d '{
 	"name": "C5",
 	"type": "CHILLER",
+	"p_nominal": 2000
+}' localhost:5000/app/site/1/add_asset
+
+# Returns:
+# {"asset_id": 6, "name": "C5", "p_nominal": 2000, "type": "CHILLER"}
+```
+
+* PATCH to update an asset of a site
+```python
+curl -X PATCH -H "Content-Type: application/json" -d '{
+	"name": "C5",
+	"type": "CHILLER",
+	"p_nominal": 2000
+}' localhost:5000/app/site/2/asset/2
+
+# Returns
+# {"asset_id": 2, "name": "C5", "p_nominal": 2000, "type": "CHILLER"}
+```
+
+* DELETE to delete an asset
+```python
+curl -X DELETE "localhost:5000/app/site/1/asset/3"
+
+# Returns:
+# Asset 2 deleted
+```
+
+### Invalid actions
+* POST with wrong asset type
+```python
+$ curl -X POST -H "Content-Type: application/json" -d '{
+    "name": "C5",
+    "type": "CHILLERR",
     "p_nominal": 2000
 }' localhost:5000/app/site/1/add_asset
 
-# Update an asset of a site
-curl -X PUT -H "Content-Type: application/json" -d '{
-	"name": "C5",
-	"type": "CHILLER",
-    "p_nominal": 2000
-}' localhost:5000/app/site/2/asset/2
-
-# Delete an asset of a site
-curl -X DELETE "localhost:5000/app/site/1/asset/2"
+# Returns error: 
+# The asset type CHILLERR is not available. 
+# Available asset types are COMPRESSOR, CHILLER, FURNACE, ROLLING_MILL.
 ```
 
-Invalid actions
-```commandline
-# Create an asset - wrong asset type
-curl -X POST -H "Content-Type: application/json" -d '{
-	"name": "C5",
-	"type": "CHILLERR",
-    "p_nominal": 2000
-}' localhost:5000/app/site/1/assets
 
-# Update an asset - p_nominal too big
-curl -X PUT -H "Content-Type: application/json" -d '{
+
+* PATCH with two big nominal power
+```python
+$ curl -X PATCH -H "Content-Type: application/json" -d '{
 	"name": "C5",
 	"type": "CHILLER",
     "p_nominal": 30000
 }' localhost:5000/app/site/1/asset/2
+
+# Returns error: 
+# For the site with ID 1, the sum of the nominal electrical powers of 
+# the assets 32000 exceeds the maximum acceptable electrical power of the site 18000.
 ```

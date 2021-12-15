@@ -1,5 +1,5 @@
 """This is the asset module and supports all the REST actions for the asset data"""
-from typing import  List, Union
+from typing import List, Union
 
 from flask import Response, abort, make_response
 
@@ -17,7 +17,7 @@ def create(site_id: int, asset: dict) -> tuple:
 
     :return:                 201 on success, 404 if not found, 403 forbidden
     """
-    site = (Site.query.filter(Site.site_id == site_id).one_or_none())
+    site = Site.query.filter(Site.site_id == site_id).one_or_none()
     if site is None:
         abort(404, f"Site not found for site Id: {site_id}.")
 
@@ -56,14 +56,15 @@ def update(site_id: int, asset_id: int, asset: dict) -> tuple:
 
     :return:                 200 on success, 404 if not found, 403 forbidden
     """
-    site = (Site.query.filter(Site.site_id == site_id).one_or_none())
+    site = Site.query.filter(Site.site_id == site_id).one_or_none()
 
     if site is None:
         abort(404, f"Site not found for site Id: {site_id}.")
 
     asset_to_update = (
-        Asset.query.filter(Site.site_id == site_id).filter(Asset.asset_id == asset_id)
-            .one_or_none()
+        Asset.query.filter(Site.site_id == site_id)
+        .filter(Asset.asset_id == asset_id)
+        .one_or_none()
     )
 
     if asset_to_update is None:
@@ -82,7 +83,11 @@ def update(site_id: int, asset_id: int, asset: dict) -> tuple:
 
     # Check the condition for the maximum electrical power of the site
     if update.p_nominal is not None:
-        sum_p = sum(asset.p_nominal for asset in site.assets) + update.p_nominal - asset_to_update.p_nominal
+        sum_p = (
+            sum(asset.p_nominal for asset in site.assets)
+            + update.p_nominal
+            - asset_to_update.p_nominal
+        )
         if sum_p > site.p_max:
             abort(
                 403,
@@ -113,8 +118,7 @@ def delete(site_id: int, asset_id: int) -> Response:
     :return:                 200 on successful delete, 404 if not found
     """
     asset = (
-        Asset.query
-        .filter(Site.site_id == site_id)
+        Asset.query.filter(Site.site_id == site_id)
         .filter(Asset.asset_id == asset_id)
         .one_or_none()
     )

@@ -121,7 +121,7 @@ paths:
                     site_id:
                       type: integer
                       description: Id of this site
-    put:
+    patch:
       operationId: app.controllers.manager_controller.update
       tags:
         - Manager
@@ -329,7 +329,7 @@ paths:
                   p_nominal:
                     type: integer
                     description: Nominal electrical power of the asset
-    put:
+    patch:
       operationId: app.controllers.site_controller.update
       tags:
         - Site
@@ -453,7 +453,7 @@ paths:
                 description: Nominal electrical power of the asset
 
   /site/{site_id}/asset/{asset_id}:
-    put:
+    patch:
       operationId: app.controllers.asset_controller.update
       tags:
         - Asset

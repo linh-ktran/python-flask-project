@@ -6,8 +6,9 @@ association_table = db.Table(
     'association',
     db.Model.metadata,
     db.Column('manager_id', db.Integer, db.ForeignKey('manager.manager_id')),
-    db.Column('site_id', db.Integer, db.ForeignKey('site.site_id'))
+    db.Column('site_id', db.Integer, db.ForeignKey('site.site_id')),
 )
+
 
 class Manager(db.Model):
     """Class representing an energy manager with his/her first name and last name."""
@@ -19,10 +20,10 @@ class Manager(db.Model):
     sites = db.relationship(
         "Site",
         secondary=association_table,
-        #backref=db.backref('managers', lazy = 'dynamic')
+        # backref=db.backref('managers', lazy = 'dynamic')
         backref='managers',
-        #back_populates="managers",
-        #cascade="all, delete"
+        # back_populates="managers",
+        # cascade="all, delete"
     )
 
 
@@ -56,8 +57,8 @@ class Asset(db.Model):
     p_nominal = db.Column(db.Integer)
 
 
-#m = Manager()
-#s = Site()
-#m.sites.append(s)
-#db.session.add(m)
-#db.session.commit()
+# m = Manager()
+# s = Site()
+# m.sites.append(s)
+# db.session.add(m)
+# db.session.commit()

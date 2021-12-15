@@ -48,7 +48,8 @@ class SiteAssetSchema(ma.SQLAlchemyAutoSchema):
     type = fields.Str()
     p_nominal = fields.Int()
 
-#OPTIONALL
+
+# OPTIONALL
 class AssetSchema(ma.SQLAlchemyAutoSchema):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -27,50 +27,52 @@ class AppTest(unittest.TestCase):
         POST request to /app/sites/{site_id}/add_asset to create a new asset
         """
         site_id = AppTest.site_id
-        response = requests.post(
-            self._get_add_asset_url(site_id=site_id), json=AppTest.NEW_ASSET
-        )
+        response = requests.post(self._get_add_asset_url(site_id=site_id), json=AppTest.NEW_ASSET)
         self.assertEqual(response.status_code, 201)
 
     def test_add_invalid_asset(self):
         """
-        POST request to /app/site/{site_id}/add_asset
-        with invalid asset
+        POST request to /app/site/{site_id}/add_asset with invalid assets
         """
         site_id = AppTest.site_id
         response = requests.post(
-            self._get_add_asset_url(site_id=site_id), json=AppTest.ASSET_BAD1,
+            self._get_add_asset_url(site_id=site_id),
+            json=AppTest.ASSET_BAD1,
         )
         self.assertEqual(response.status_code, 403)
         response = requests.post(
-            self._get_add_asset_url(site_id=site_id), json=AppTest.ASSET_BAD2,
+            self._get_add_asset_url(site_id=site_id),
+            json=AppTest.ASSET_BAD2,
         )
         self.assertEqual(response.status_code, 403)
 
     def test_update_invalid_asset(self):
         """
-        PUT request to /app/site/{site_id}/asset/{asset_id} to update un asset
+        PATCH request to /app/site/{site_id}/asset/{asset_id} to update un asset
         """
         site_id = AppTest.site_id
         asset_id = AppTest.UPDATE_ASSET["asset_id"]
-        response = requests.put(
-            self._get_asset_url(site_id=site_id, asset_id=asset_id), json=AppTest.ASSET_BAD1,
+        response = requests.patch(
+            self._get_asset_url(site_id=site_id, asset_id=asset_id),
+            json=AppTest.ASSET_BAD1,
         )
         self.assertEqual(response.status_code, 403)
 
-        response = requests.put(
-            self._get_asset_url(site_id=site_id, asset_id=asset_id), json=AppTest.ASSET_BAD2,
+        response = requests.patch(
+            self._get_asset_url(site_id=site_id, asset_id=asset_id),
+            json=AppTest.ASSET_BAD2,
         )
         self.assertEqual(response.status_code, 403)
 
     def test_update_valid_asset(self):
         """
-        PUT request to /app/site/{site_id}/asset/{asset_id} to update un asset
+        PATCH request to /app/site/{site_id}/asset/{asset_id} to update un asset
         """
         site_id = AppTest.site_id
         asset_id = AppTest.UPDATE_ASSET["asset_id"]
-        response = requests.put(
-            self._get_asset_url(site_id=site_id, asset_id=asset_id), json=AppTest.UPDATE_ASSET,
+        response = requests.patch(
+            self._get_asset_url(site_id=site_id, asset_id=asset_id),
+            json=AppTest.UPDATE_ASSET,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -80,9 +82,7 @@ class AppTest(unittest.TestCase):
         """
         site_id = AppTest.site_id
         asset_id = AppTest.NEW_ASSET["asset_id"]
-        requests.post(
-            self._get_add_asset_url(site_id=site_id), json=AppTest.NEW_ASSET
-        )
+        requests.post(self._get_add_asset_url(site_id=site_id), json=AppTest.NEW_ASSET)
         response = requests.delete(self._get_asset_url(site_id=site_id, asset_id=asset_id))
         self.assertEqual(response.status_code, 200)
 

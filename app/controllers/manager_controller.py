@@ -1,5 +1,5 @@
 """This is the manager module and supports all the ReST actions for the manager data"""
-from typing import  List, Union
+from typing import List, Union
 
 from flask import Response, abort, make_response
 
@@ -28,7 +28,9 @@ def read_one(manager_id: int) -> Union[dict, List[dict]]:
 
     :return:             manager matching id, 404 on manager not found
     """
-    manager = Manager.query.filter(Manager.manager_id == manager_id).one_or_none()#.outerjoin(Site)
+    manager = Manager.query.filter(
+        Manager.manager_id == manager_id
+    ).one_or_none()  # .outerjoin(Site)
 
     if manager is None:
         abort(404, f"Manager not found for Id: {manager_id}")
@@ -62,9 +64,7 @@ def create(manager: dict) -> tuple:
 
         if sites is not None:
             for site in sites:
-                associated_site = (
-                    Site.query.filter(Site.site_id == site['site_id']).one_or_none()
-                )
+                associated_site = Site.query.filter(Site.site_id == site['site_id']).one_or_none()
                 if associated_site is None:
                     abort(404, f"Site not found for Id: {site['site_id']}")
 
@@ -95,7 +95,6 @@ def update(manager_id: int, manager: dict) -> tuple:
 
     schema = ManagerSchema()
     update = schema.load(data=manager, session=db.session)
-
     update.manager_id = manager_to_update.manager_id
 
     db.session.merge(update)

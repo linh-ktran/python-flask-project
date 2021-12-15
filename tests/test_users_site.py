@@ -20,7 +20,7 @@ class AppTest(unittest.TestCase):
         "address": "20 rue de Paris",
         "name": "Orsay",
         "p_max": 18000,
-        "assets":[]
+        "assets": [],
     }
 
     NEW_SITE = {
@@ -36,7 +36,6 @@ class AppTest(unittest.TestCase):
         "address": "30 ABC street",
         "p_max": 7000,
         "assets": [],
-
     }
 
     SITE_WITH_MANAGERS = {
@@ -95,7 +94,6 @@ class AppTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.SITE_CHECK)
 
-
     def test_add_a_site(self):
         """
         POST request to /app/managers/{manager_id}/sites to create a new site
@@ -108,7 +106,6 @@ class AppTest(unittest.TestCase):
         response = requests.get(self._get_site_url(site_id=site_id))
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), AppTest.NEW_SITE_CHECK)
-
 
     def test_add_a_site_with_managers(self):
         """
@@ -126,14 +123,12 @@ class AppTest(unittest.TestCase):
 
     def test_update_existing_site(self):
         """
-        PUT request to /app/managers/{manager_id}/sites/{site_id}
+        PATCH request to /app/managers/{manager_id}/sites/{site_id}
         to update an existing site
         """
         requests.post(SITES_URL, json=AppTest.NEW_SITE)
         site_id = AppTest.UPDATE_SITE["site_id"]
-        response = requests.put(
-            self._get_site_url(site_id=site_id), json=AppTest.UPDATE_SITE
-        )
+        response = requests.patch(self._get_site_url(site_id=site_id), json=AppTest.UPDATE_SITE)
         self.assertEqual(response.status_code, 200)
 
         # Check if the new site is actually updated
@@ -143,12 +138,12 @@ class AppTest(unittest.TestCase):
 
     def test_update_invalid_site(self):
         """
-        PUT request to /app/managers/{manager_id}/sites/{site_id}
+        PATCH request to /app/managers/{manager_id}/sites/{site_id}
         to update an existing site
         """
         requests.post(SITES_URL, json=AppTest.NEW_SITE)
         site_id = AppTest.UPDATE_BAD_SITE["site_id"]
-        response = requests.put(
+        response = requests.patch(
             self._get_site_url(site_id=site_id), json=AppTest.UPDATE_BAD_SITE
         )
         self.assertEqual(response.status_code, 403)
