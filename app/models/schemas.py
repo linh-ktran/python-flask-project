@@ -23,9 +23,6 @@ class ManagerSiteSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     site_id = fields.Int()
-    # name = fields.Str()
-    # address = fields.Str()
-    # p_max = fields.Int()
 
 
 class SiteSchema(ma.SQLAlchemyAutoSchema):
@@ -37,19 +34,7 @@ class SiteSchema(ma.SQLAlchemyAutoSchema):
         sqla_session = db.session
         load_instance = True
 
-    manager = fields.Nested("SiteManagerSchema", default=None)
     assets = fields.Nested("SiteAssetSchema", many=True)
-
-
-class SiteManagerSchema(ma.SQLAlchemyAutoSchema):
-    """This class exists to get around a recursion issue"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    manager_id = fields.Int()
-    # lname = fields.Str()
-    # fname = fields.Str()
 
 
 class SiteAssetSchema(ma.SQLAlchemyAutoSchema):
@@ -59,11 +44,11 @@ class SiteAssetSchema(ma.SQLAlchemyAutoSchema):
         super().__init__(**kwargs)
 
     asset_id = fields.Int()
-    # name = fields.Str()
-    # type = fields.Str()
-    # p_nominal = fields.Int()
+    name = fields.Str()
+    type = fields.Str()
+    p_nominal = fields.Int()
 
-
+#OPTIONALL
 class AssetSchema(ma.SQLAlchemyAutoSchema):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -72,17 +57,3 @@ class AssetSchema(ma.SQLAlchemyAutoSchema):
         model = Asset
         sqla_session = db.session
         load_instance = True
-
-    site = fields.Nested("AssetSiteSchema", default=None)
-
-
-class AssetSiteSchema(ma.SQLAlchemyAutoSchema):
-    """This class exists to get around a recursion issue"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    site_id = fields.Int()
-    # name = fields.Str()
-    # address = fields.Str()
-    # p_max = fields.Int()

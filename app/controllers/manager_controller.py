@@ -26,9 +26,9 @@ def read_one(manager_id: int) -> Union[dict, List[dict]]:
 
     :param manager_id:   Id of manager to find
 
-    :return:             manager matching id
+    :return:             manager matching id, 404 on manager not found
     """
-    manager = Manager.query.filter(Manager.manager_id == manager_id).outerjoin(Site).one_or_none()
+    manager = Manager.query.filter(Manager.manager_id == manager_id).one_or_none()#.outerjoin(Site)
 
     if manager is None:
         abort(404, f"Manager not found for Id: {manager_id}")
@@ -44,7 +44,7 @@ def create(manager: dict) -> tuple:
 
     :param manager:  manager to create in manager structure
 
-    :return:         201 on success, 409 on manager exists
+    :return:         201 on success, 409 on manager exists, 404 if not found
     """
     fname = manager.get("fname")
     lname = manager.get("lname")
@@ -52,19 +52,31 @@ def create(manager: dict) -> tuple:
     existing_manager = (
         Manager.query.filter(Manager.fname == fname).filter(Manager.lname == lname).one_or_none()
     )
-
-    if existing_manager is None:
-        schema = ManagerSchema()
-        new_manager = schema.load(manager, session=db.session)
-
-        db.session.add(new_manager)
-        db.session.commit()
-
-        data = schema.dump(new_manager)
-        return data, 201
-
-    else:
+    if existing_manager is not None:
         abort(409, f"Manager {fname} {lname} exists already")
+
+    schema = ManagerSchema()
+    if "sites" in manager:
+        sites = manager.pop("sites")
+        new_manager = schema.load(data=manager, session=db.session)
+
+        if sites is not None:
+            for site in sites:
+                associated_site = (
+                    Site.query.filter(Site.site_id == site['site_id']).one_or_none()
+                )
+                if associated_site is None:
+                    abort(404, f"Site not found for Id: {site['site_id']}")
+
+                new_manager.sites.append(associated_site)
+    else:
+        new_manager = schema.load(data=manager, session=db.session)
+
+    db.session.add(new_manager)
+    db.session.commit()
+
+    data = schema.dump(new_manager)
+    return data, 201
 
 
 def update(manager_id: int, manager: dict) -> tuple:
@@ -75,31 +87,30 @@ def update(manager_id: int, manager: dict) -> tuple:
     :param manager_id:   Id of the manager to update in the manager structure
     :param manager:      manager to update
 
-    :return:             updated manager structure
+    :return:             updated manager structure, 404 on manager not found, 403 forbidden
     """
-    update_manager = Manager.query.filter(Manager.manager_id == manager_id).one_or_none()
-
-    if update_manager is None:
+    manager_to_update = Manager.query.filter(Manager.manager_id == manager_id).one_or_none()
+    if manager_to_update is None:
         abort(404, f"Manager not found for Id: {manager_id}")
 
     schema = ManagerSchema()
-    update = schema.load(manager, session=db.session)
-    update.manager_id = update_manager.manager_id
+    update = schema.load(data=manager, session=db.session)
+
+    update.manager_id = manager_to_update.manager_id
 
     db.session.merge(update)
     db.session.commit()
 
-    data = schema.dump(update_manager)
+    data = schema.dump(manager_to_update)
     return data, 200
 
 
 def delete(manager_id: int) -> Response:
-    """
-    This function deletes a manager from the manager structure
+    """This function deletes a manager from the manager structure
 
     :param manager_id:   Id of the manager to delete
 
-    :return:             200 on successful delete, 404 if not found
+    :return:             200 on successful delete, 404 on manager not found
     """
     # Get the manager requested
     manager = Manager.query.filter(Manager.manager_id == manager_id).one_or_none()

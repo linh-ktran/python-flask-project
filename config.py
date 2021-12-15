@@ -7,7 +7,7 @@ project_dir = os.path.abspath(os.path.dirname(__file__))
 connexion_app = connexion.App(__name__, specification_dir=project_dir)
 database_file = "sqlite:///" + os.path.join(project_dir, "database.db")
 
-#The app instance
+# The app instance
 app = connexion_app.app
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
