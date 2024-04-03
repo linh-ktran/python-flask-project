@@ -1,4 +1,4 @@
-**Python technical test**
+**Python project**
 
 
 *Main objective*
