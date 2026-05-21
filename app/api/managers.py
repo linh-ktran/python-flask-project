@@ -31,7 +31,10 @@ class ManagerList(MethodView):
             first_name=data["first_name"], last_name=data["last_name"]
         ).first()
         if existing:
-            abort(409, message=f"Manager '{data['first_name']} {data['last_name']}' already exists.")
+            abort(
+                409,
+                message=f"Manager '{data['first_name']} {data['last_name']}' already exists.",
+            )
 
         site_ids = data.pop("site_ids", [])
         sites = []

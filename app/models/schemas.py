@@ -4,7 +4,6 @@ from marshmallow import Schema, fields, validate
 
 from app.models.models import AssetType
 
-
 # -- Requests --
 
 class ManagerCreateSchema(Schema):

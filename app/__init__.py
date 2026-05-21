@@ -28,10 +28,10 @@ def create_app(config_name: str | None = None) -> Flask:
 
     api = Api(app)
 
-    from app.api.managers import blp as managers_blp
-    from app.api.sites import blp as sites_blp
     from app.api.assets import blp as assets_blp
     from app.api.health import blp as health_blp
+    from app.api.managers import blp as managers_blp
+    from app.api.sites import blp as sites_blp
 
     api.register_blueprint(health_blp)
     api.register_blueprint(managers_blp)

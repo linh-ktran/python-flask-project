@@ -1,3 +1,5 @@
+![CI](https://github.com/linh-ktran/python-flask-project/actions/workflows/ci.yml/badge.svg)
+
 # Industrial Asset Manager API
 
 A Flask REST API for managing industrial sites, their energy managers, and machine assets (compressors, chillers, etc.). Built as a portfolio project showcasing modern Flask patterns.
