@@ -1,271 +1,116 @@
-**Python project**
+# Industrial Asset Manager API
 
+A Flask REST API for managing industrial sites, their energy managers, and machine assets (compressors, chillers, etc.). Built as a portfolio project showcasing modern Flask patterns.
 
-*Main objective*
+## What it does
 
-Make an HTTP REST web service that implements the CRUD functionalities for the following:
-- industrial sites with name, address and maximum acceptable electrical power,
-- energy manager associated with one or more sites with last name, first name
-- and machines (assets) associated with a site with name, electrical power nominal and type.
+Manages the relationship between:
+- **Sites** — industrial locations with a maximum electrical power capacity
+- **Managers** — people responsible for one or more sites
+- **Assets** — machines on a site (compressor, chiller, furnace, rolling mill)
 
-*Business rules*
-- the sum of the nominal electrical powers of the machines on a site cannot exceed the maximum acceptable electrical power of the site
-- the type of machines can only be furnace, compressor, chiller, rolling mill.
-- an industrial site may not have a machine
+The main business rule: you can't add machines to a site if their combined power would exceed the site's capacity.
 
-*Techno*
-- a free relational base,
-- flask or fastapi web framework.
-
-*Evaluation criteria*
-- proficiency in Python,
-- test management,
-- modeling,
-- cleanliness of the code and its architecture,
-- knowledge of the Python ecosystem.
-
+## Project structure
 
 ```
-test-python-flask
+app/
+├── __init__.py          # App factory
+├── config.py            # Dev/test/prod configs
+├── api/                 # Endpoints (Flask-Smorest blueprints)
+│   ├── health.py
+│   ├── managers.py
+│   ├── sites.py
+│   └── assets.py
+└── models/
+    ├── models.py        # SQLAlchemy models
+    └── schemas.py       # Marshmallow validation schemas
 
-├── app
-│   ├── models
-│   │   ├── __init__.py
-│   │   ├── models.py
-│   │   ├── schemas.py
-│   ├── controllers
-│   │   ├── __init__.py
-│   │   ├── asset_controller.py
-│   │   ├── manager_controller.py
-│   │   ├── site_controller.py  
-├── tests
-│   ├── conftest.py
-│   ├── intergration
-│   │   ├── test_asset.py
-│   │   ├── test_site.py
-│   │   ├── test_manager.py
-│   ├── unit
-│   │   ├── test_models.py
-├── __init__.py
-├── README.md
-├── run.py
-├── config.py
-├── setup.py
-├── tox.ini
-├── swagger.yml
-├── database.db
-├── build_database.db
-├── Pipfile
-├── Pipfile.lock
-
-```
-##GET STARTED
-
-```commandline
-$ sudo pip install pipenv
-
-# Install all dependencies in our Pipfile
-$ pipenv install --dev
-
-# Then activate the virtualenv
-$ pipenv shell
+tests/
+├── conftest.py          # Fixtures (in-memory DB)
+├── test_models.py       # Unit tests
+├── test_users_manager.py
+├── test_users_site.py
+└── test_users_asset.py
 ```
 
-###Create the initial database
-```commandline
-$ python build_database.py
+## Setup
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+
+# Populate with sample data
+python build_database.py
+
+# Run the server
+flask run --debug
 ```
 
+API docs are served at http://localhost:5000/swagger-ui once the server is up.
 
-### To test the api
-```commandline
-$ tox
-ou
-$ pytest
+## Running tests
+
+```bash
+pytest
+# or with coverage
+pytest --cov=app --cov-report=term-missing
 ```
 
-### To test the api manually
+50 tests covering models, business rules, and all API endpoints. Uses an in-memory SQLite DB so tests are fast and isolated.
 
-### 1. Energy manager
+## Docker
 
-* GET to read all the managers
-```python
-curl -X GET  http://localhost:5000/app/managers
+```bash
+docker compose up --build
 ```
 
-* GET to read a managers
-```python
-curl -X GET "localhost:5000/app/manager/1"
+## API overview
 
-# Returns: 
-#{"manager_id": 1, "fname": "Nicolas", "lname": "Plain", "sites": [{"site_id": 1}, {"site_id": 2}]}}
+**Managers** — `/api/managers`
+- `GET /` — list all
+- `POST /` — create (with optional `site_ids` to link)
+- `GET /<id>`, `PATCH /<id>`, `DELETE /<id>`
+
+**Sites** — `/api/sites`
+- `GET /` — list all (includes assets and power info)
+- `POST /` — create (with optional `manager_ids`)
+- `GET /<id>`, `PATCH /<id>`, `DELETE /<id>`
+
+**Assets** — `/api/sites/<site_id>/assets`
+- `GET /` — list assets for a site
+- `POST /` — add machine (validates power limit + type)
+- `GET /<id>`, `PATCH /<id>`, `DELETE /<id>`
+
+## Quick example
+
+```bash
+# Create a site
+curl -X POST http://localhost:5000/api/sites \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Factory A", "address": "123 Industrial Rd", "max_power": 20000}'
+
+# Add a machine — works fine
+curl -X POST http://localhost:5000/api/sites/1/assets \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Compressor-1", "asset_type": "COMPRESSOR", "nominal_power": 5000}'
+
+# Try adding one that's too powerful — returns 422
+curl -X POST http://localhost:5000/api/sites/1/assets \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Big-Furnace", "asset_type": "FURNACE", "nominal_power": 25000}'
 ```
 
-* POST to add a new manager 
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"fname": "Luca",
-	"lname": "Rava"
-}' http://localhost:5000/app/managers
+## Tech used
 
-# Returns: 
-# {"fname": "Luca", "lname": "Rava", "manager_id": 4, "sites": []}
-```
+- Flask 3 + Flask-Smorest (auto OpenAPI docs)
+- SQLAlchemy + Flask-Migrate
+- Marshmallow for input validation
+- Pytest
+- Docker + Gunicorn for production
+- Ruff for linting
 
-* POST to a new manager and link it to one or some existing sites
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"fname": "Ruby",
-	"lname": "Green",
-	"sites": [{"site_id": 1}, {"site_id": 2}]
-}' http://localhost:5000/app/managers
-```
+## License
 
-* PATCH to update a manager
-```python
-curl -X PATCH -H "Content-Type: application/json" -d '{
-	"fname": "Lucas"
-}' http://localhost:5000/app/manager/3
-```
-
-* DELETE to delete a manager
-```python
-curl -iX DELETE "localhost:5000/app/manager/3"
-```
-
-#### Invalid actions
-* POST to create a manager with invalid site_id
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"fname": "Ruby",
-	"lname": "Green",
-	"sites": [{"site_id": 1}, {"site_id": 10}]
-}' http://localhost:5000/app/managers
-
-# Returns: Site not found for Id: 10
-```
-
-
-### 2. Industrial site
-
-* GET to read all sites and their assets
-```python
-curl -X GET "localhost:5000/app/sites"
-```
-
-* GET to read a specific site and its assets
-```python
-curl -X GET "localhost:5000/app/site/1"
-
-# Returns:
-# { "site_id": 1, "name": "Orsay", "address": "20 rue de Paris", "p_max": 18000,
-#  "assets": [
-#    {"asset_id": 2, "name": "C2", "p_nominal": 3000, "type": "COMPRESSOR"},
-#    {"asset_id": 1, "name": "C1", "p_nominal": 2000, "type": "COMPRESSOR"}
-#  ]}
-```
-
-* POST to add a new site
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"name": "Newsite",
-	"address": "30 ABC street",
-	"p_max": 7000
-}' localhost:5000/app/sites
-```
-
-* POST to add a new site with associated existing managers
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"name": "Newsite",
-	"address": "30 ABC street",
-	"p_max": 7000,
-	"managers": [{"manager_id": 1}, {"manager_id": 2}]
-}' localhost:5000/app/sites
-```
-
-* PATCH to update a site
-```python
-curl -X PATCH -H "Content-Type: application/json" -d '{
-	"p_max": 9000,
-}' localhost:5000/app/site/2
-```
-
-* DELETE to delete a site
-```python
-curl -X DELETE "localhost:5000/app/site/1"
-```
-
-#### Invalid actions
-* PATCH to update a site with p_max too small comparing to the assets
-```commandline
-curl -X PATCH -H "Content-Type: application/json" -d '{
-	"p_max": 2000
-}' localhost:5000/app/site/2
-
-# Returns: 
-# For the site with ID 2, the sum of the nominal electrical powers of the assets 7000 
-# exceeds the new maximum electrical power of the site 2000.
-```
-
-###  3. Asset
-* POST to create an asset of a site
-```python
-curl -X POST -H "Content-Type: application/json" -d '{
-	"name": "C5",
-	"type": "CHILLER",
-	"p_nominal": 2000
-}' localhost:5000/app/site/1/add_asset
-
-# Returns:
-# {"asset_id": 6, "name": "C5", "p_nominal": 2000, "type": "CHILLER"}
-```
-
-* PATCH to update an asset of a site
-```python
-curl -X PATCH -H "Content-Type: application/json" -d '{
-	"name": "C5",
-	"type": "CHILLER",
-	"p_nominal": 2000
-}' localhost:5000/app/site/2/asset/2
-
-# Returns
-# {"asset_id": 2, "name": "C5", "p_nominal": 2000, "type": "CHILLER"}
-```
-
-* DELETE to delete an asset
-```python
-curl -X DELETE "localhost:5000/app/site/1/asset/3"
-
-# Returns:
-# Asset 2 deleted
-```
-
-### Invalid actions
-* POST with wrong asset type
-```python
-$ curl -X POST -H "Content-Type: application/json" -d '{
-    "name": "C5",
-    "type": "CHILLERR",
-    "p_nominal": 2000
-}' localhost:5000/app/site/1/add_asset
-
-# Returns error: 
-# The asset type CHILLERR is not available. 
-# Available asset types are COMPRESSOR, CHILLER, FURNACE, ROLLING_MILL.
-```
-
-
-
-* PATCH with two big nominal power
-```python
-$ curl -X PATCH -H "Content-Type: application/json" -d '{
-	"name": "C5",
-	"type": "CHILLER",
-    "p_nominal": 30000
-}' localhost:5000/app/site/1/asset/2
-
-# Returns error: 
-# For the site with ID 1, the sum of the nominal electrical powers of 
-# the assets 32000 exceeds the maximum acceptable electrical power of the site 18000.
-```
+MIT

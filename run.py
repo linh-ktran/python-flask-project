@@ -1,11 +1,8 @@
-"""Main module of the server file"""
-import config
+"""Entry point for running the Flask application."""
 
-# Get the application instance
-connexion_app = config.connexion_app
+from app import create_app
 
-# Read the swagger.yml file to configure the endpoints
-connexion_app.add_api("swagger.yml")
+app = create_app()
 
 if __name__ == "__main__":
-    connexion_app.run(debug=True)
+    app.run(debug=True, port=5000)
