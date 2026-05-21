@@ -1,58 +1,66 @@
-import os
-from config import db
-from app.models.models import Manager, Site, Asset
+"""Seed the database with sample data."""
+
+from app import create_app, db
+from app.models.models import Asset, Manager, Site
 
 
-nicolas = Manager(fname="Nicolas", lname="Plain")
-james = Manager(fname="James", lname="Brown")
-mary = Manager(fname="Mary", lname="Miller")
+def seed():
+    app = create_app("development")
 
-# Data to initialize database with
-SITES = [
-    {
-        "name": "Orsay" ,
-        "address": "20 rue de Paris",
-        "p_max":18000,
-        "assets": [
-            ("C1", "COMPRESSOR", 2000),
-            ("C2", "COMPRESSOR", 3000),
-        ],
-        "managers": [nicolas, james, mary]
-    },
-    {
-        "name": "Tarnos",
-        "address": "5 rue de Leon Seche",
-        "p_max": 20000,
-        "assets": [
-            ("C1", "CHILLER", 2000),
-            ("C2", "CHILLER", 4000),
-            ("C2", "CHILLER", 1000),
-        ],
-        "managers": [nicolas, james]
-    },
-    {
-        "name": "Paris",
-        "address": "30 rue de Gramont",
-        "p_max": 0,
-        "assets": [],
-        "managers": [mary]
-    }
-]
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
-if os.path.exists('database.db'):
-    os.remove('database.db')
+        nicolas = Manager(first_name="Nicolas", last_name="Plain")
+        james = Manager(first_name="James", last_name="Brown")
+        mary = Manager(first_name="Mary", last_name="Miller")
 
-db.create_all()
+        db.session.add_all([nicolas, james, mary])
 
-for data in SITES:
-    site = Site(name=data['name'], address=data['address'], p_max=data['p_max'])
+        orsay = Site(
+            name="Orsay",
+            address="20 rue de Paris, 91400 Orsay",
+            max_power=18000,
+            managers=[nicolas, james, mary],
+        )
+        orsay.assets = [
+            Asset(name="Compressor-1", asset_type="COMPRESSOR", nominal_power=2000),
+            Asset(name="Compressor-2", asset_type="COMPRESSOR", nominal_power=3000),
+            Asset(name="Chiller-1", asset_type="CHILLER", nominal_power=4000),
+        ]
 
-    for manager in data.get("managers"):
-        site.managers.append(manager)
+        tarnos = Site(
+            name="Tarnos",
+            address="5 rue de Leon Seche, 40220 Tarnos",
+            max_power=20000,
+            managers=[nicolas, james],
+        )
+        tarnos.assets = [
+            Asset(name="Chiller-1", asset_type="CHILLER", nominal_power=2000),
+            Asset(name="Chiller-2", asset_type="CHILLER", nominal_power=4000),
+            Asset(name="Furnace-1", asset_type="FURNACE", nominal_power=5000),
+            Asset(name="Rolling-Mill-1", asset_type="ROLLING_MILL", nominal_power=3000),
+        ]
 
-    for asset in data.get("assets"):
-        name, type, p_nominal = asset
-        site.assets.append(Asset(name=name, type=type, p_nominal=p_nominal))
+        paris = Site(
+            name="Paris",
+            address="30 rue de Gramont, 75002 Paris",
+            max_power=25000,
+            managers=[mary],
+        )
+        paris.assets = [
+            Asset(name="Compressor-1", asset_type="COMPRESSOR", nominal_power=5000),
+            Asset(name="Furnace-1", asset_type="FURNACE", nominal_power=8000),
+        ]
 
-    db.session.add(site)
-db.session.commit()
+        db.session.add_all([orsay, tarnos, paris])
+        db.session.commit()
+
+        print("Done! Seeded:")
+        print(f"  {Manager.query.count()} managers")
+        print(f"  {Site.query.count()} sites")
+        print(f"  {Asset.query.count()} assets")
+
+
+if __name__ == "__main__":
+    seed()
