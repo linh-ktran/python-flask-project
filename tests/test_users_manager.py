@@ -1,97 +1,81 @@
-import unittest
+"""Tests for the Manager API."""
 
-import requests
-
-BASE_URL = "http://127.0.0.1:5000/app"
-MANAGERS_URL = "{}/managers".format(BASE_URL)
+import json
 
 
-class AppTest(unittest.TestCase):
+class TestManagerAPI:
 
-    FIRST_MANAGER = {
-        "manager_id": 1,
-        "fname": "Nicolas",
-        "lname": "Plain",
-        "sites": [{"site_id": 1}, {"site_id": 2}],
-    }
-    NEW_MANAGER = {
-        "manager_id": 7,
-        "fname": "Luca",
-        "lname": "Rava",
-        "sites": [{"site_id": 1}, {"site_id": 2}],
-    }
-    BAD_MANAGER = {"fname": "Luca", "lname": "Rava", "sites": [{"site_id": 12}]}
+    def test_list_empty(self, client):
+        response = client.get("/api/managers")
+        assert response.status_code == 200
+        assert response.json == []
 
-    MANAGER = {"manager_id": 10, "fname": "Lu", "lname": "Ra"}
-    UPDATE_MANAGER = {"manager_id": 10, "fname": "Lucas", "lname": "Ravan"}
-    UPDATE_MANAGER_CHECK = {"manager_id": 10, "fname": "Lucas", "lname": "Ravan", "sites": []}
+    def test_list_managers(self, client, sample_manager):
+        response = client.get("/api/managers")
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["first_name"] == "Nicolas"
 
-    def _get_manager_url(self, manager_id: int) -> str:
-        """Return the ULR for a manager"""
-        return "{}/manager/{}".format(BASE_URL, manager_id)
+    def test_get_one(self, client, sample_manager):
+        response = client.get(f"/api/managers/{sample_manager.id}")
+        assert response.status_code == 200
+        assert response.json["first_name"] == "Nicolas"
+        assert "sites" in response.json
 
-    def test_get_managers(self):
-        """
-        GET request to /app/managers returns the details of all manager
-        """
-        response = requests.get(MANAGERS_URL)
-        self.assertEqual(response.status_code, 200)
+    def test_get_not_found(self, client):
+        response = client.get("/api/managers/999")
+        assert response.status_code == 404
 
-    def test_get_a_manager(self):
-        """
-        GET request to /app/managers/{manager_id} returns a manager
-        """
-        manager_id = AppTest.FIRST_MANAGER["manager_id"]
-        response = requests.get(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json(), AppTest.FIRST_MANAGER)
+    def test_create(self, client):
+        data = {"first_name": "Alice", "last_name": "Smith"}
+        response = client.post("/api/managers", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 201
+        assert response.json["first_name"] == "Alice"
+        assert response.json["id"] is not None
 
-    def test_add_valid_manager(self):
-        """
-        POST request to /app/managers to create a new manager with associated sites
-        """
-        manager_id = AppTest.NEW_MANAGER["manager_id"]
-        response = requests.post(MANAGERS_URL, json=AppTest.NEW_MANAGER)
-        self.assertEqual(response.status_code, 201)
-        # Check if the new manager is actually added
-        response = requests.get(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json(), AppTest.NEW_MANAGER)
+    def test_create_with_sites(self, client, sample_site):
+        data = {"first_name": "Bob", "last_name": "Jones", "site_ids": [sample_site.id]}
+        response = client.post("/api/managers", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 201
+        assert len(response.json["sites"]) == 1
 
-    def test_add_invalid_manager(self):
-        """
-        POST request to /app/managers to create a new manager
-        """
-        response = requests.post(MANAGERS_URL, json=AppTest.BAD_MANAGER)
-        self.assertEqual(response.status_code, 404)
+    def test_create_bad_site_id(self, client):
+        data = {"first_name": "Bob", "last_name": "Jones", "site_ids": [999]}
+        response = client.post("/api/managers", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 404
 
-    def test_update_an_existing_manager(self):
-        """
-        PATCH request to /app/managers/manager_id to update a manager
-        """
-        manager_id = AppTest.UPDATE_MANAGER["manager_id"]
-        requests.post(MANAGERS_URL, json=AppTest.MANAGER)
-        response = requests.patch(
-            self._get_manager_url(manager_id), json=AppTest.UPDATE_MANAGER_CHECK
+    def test_create_duplicate(self, client, sample_manager):
+        data = {"first_name": "Nicolas", "last_name": "Plain"}
+        response = client.post("/api/managers", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 409
+
+    def test_create_missing_fields(self, client):
+        data = {"first_name": "Alice"}
+        response = client.post("/api/managers", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 422
+
+    def test_update(self, client, sample_manager):
+        data = {"first_name": "Updated"}
+        response = client.patch(
+            f"/api/managers/{sample_manager.id}", data=json.dumps(data), content_type="application/json"
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
+        assert response.json["first_name"] == "Updated"
+        assert response.json["last_name"] == "Plain"  # untouched
 
-        # Check if the new manager is actually updated
-        response = requests.get(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json(), AppTest.UPDATE_MANAGER_CHECK)
+    def test_update_not_found(self, client):
+        data = {"first_name": "Ghost"}
+        response = client.patch("/api/managers/999", data=json.dumps(data), content_type="application/json")
+        assert response.status_code == 404
 
-    def test_delete_manager(self):
-        """
-        DELETE request to /app/managers/manager_id to delete a manager
-        """
-        manager_id = AppTest.NEW_MANAGER["manager_id"]
-        requests.post(MANAGERS_URL, json=AppTest.NEW_MANAGER)
-        response = requests.delete(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 200)
+    def test_delete(self, client, sample_manager):
+        response = client.delete(f"/api/managers/{sample_manager.id}")
+        assert response.status_code == 200
 
-        # Check if the manager is actually deleted
-        response = requests.get(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 404)
-        response = requests.delete(self._get_manager_url(manager_id=manager_id))
-        self.assertEqual(response.status_code, 404)
+        # gone now
+        response = client.get(f"/api/managers/{sample_manager.id}")
+        assert response.status_code == 404
+
+    def test_delete_not_found(self, client):
+        response = client.delete("/api/managers/999")
+        assert response.status_code == 404
